@@ -4,7 +4,6 @@ import { BurgerConstructorUI } from '@ui';
 import { useSelector, useDispatch } from '../../services/store';
 import { useNavigate } from 'react-router-dom';
 import { getFetchBurger, orderReset } from '../../services/orderSlice';
-import { clearConstructor } from '../../services/constructorBurgerSlice';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
@@ -38,7 +37,6 @@ export const BurgerConstructor: FC = () => {
   };
   const closeOrderModal = () => {
     dispatch(orderReset());
-    dispatch(clearConstructor());
   };
 
   const price = useMemo(

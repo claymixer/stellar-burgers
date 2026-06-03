@@ -1,8 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { TConstructorIngredient } from '@utils-types';
+import { TConstructorIngredient, TIngredient } from '@utils-types';
+import { v4 as uuidv4 } from 'uuid';
+import { getFetchBurger } from './orderSlice';
+
+type TConstructorPayload = TIngredient | TConstructorIngredient;
 
 type TConstructorState = {
-  bun: TConstructorIngredient | null;
+  bun: TIngredient | null;
   ingredients: TConstructorIngredient[];
 };
 
@@ -15,12 +19,20 @@ const constructorBurgerSlice = createSlice({
   name: 'constructor',
   initialState,
   reducers: {
-    addIngredients: (state, action) => {
-      if (action.payload.type === 'bun') {
-        state.bun = action.payload;
-      } else {
-        state.ingredients.push(action.payload);
-      }
+    addIngredients: {
+      reducer: (state, { payload }: PayloadAction<TConstructorPayload>) => {
+        if (payload.type === 'bun') {
+          state.bun = payload;
+        } else {
+          state.ingredients.push(payload as TConstructorIngredient);
+        }
+      },
+      prepare: (ingredient: TIngredient) => ({
+        payload:
+          ingredient.type === 'bun'
+            ? ingredient
+            : { ...ingredient, id: uuidv4() }
+      })
     },
 
     moveIngredient: (
@@ -42,16 +54,13 @@ const constructorBurgerSlice = createSlice({
       state.ingredients = ingredients;
     },
 
-    removeIngredient: (state, action) => {
-      if (action.payload.type !== 'bun') {
-        const idToRemove = action.payload._id;
-        const indexToRemove = state.ingredients.findIndex(
-          (ingredient) => ingredient._id === idToRemove
-        );
+    removeIngredient: (state, action: PayloadAction<string>) => {
+      const indexToRemove = state.ingredients.findIndex(
+        (ingredient) => ingredient.id === action.payload
+      );
 
-        if (indexToRemove !== -1) {
-          state.ingredients.splice(indexToRemove, 1);
-        }
+      if (indexToRemove !== -1) {
+        state.ingredients.splice(indexToRemove, 1);
       }
     },
 
@@ -59,6 +68,12 @@ const constructorBurgerSlice = createSlice({
       state.bun = null;
       state.ingredients = [];
     }
+  },
+  extraReducers: (builder) => {
+    builder.addCase(getFetchBurger.fulfilled, (state) => {
+      state.bun = null;
+      state.ingredients = [];
+    });
   }
 });
 
