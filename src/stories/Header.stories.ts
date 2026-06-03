@@ -18,14 +18,12 @@ type Story = StoryObj<typeof meta>;
 
 export const LoggedIn: Story = {
   args: {
-    userName: 'John Doe',
-    isAuthenticated: true
+    userName: 'John Doe'
   }
 };
 
 export const LoggedOut: Story = {
   args: {
-    userName: undefined,
-    isAuthenticated: false
+    userName: undefined
   }
 };

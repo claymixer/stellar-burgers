@@ -1,23 +1,19 @@
-import React from 'react';
-import * as ReactDOMClient from 'react-dom/client';
-import App from './components/app/app';
 import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import store from './services/store';
+import React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
+import App from './components/app/app';
 
 const container = document.getElementById('root') as HTMLElement;
 const root = ReactDOMClient.createRoot(container!);
 
-// Определяем basename в зависимости от окружения
-const basename =
-  process.env.NODE_ENV === 'production' ? '/stellar-burgers' : '';
-
 root.render(
   <React.StrictMode>
-    <BrowserRouter basename={basename}>
-      <Provider store={store}>
+    <Provider store={store}>
+      <BrowserRouter>
         <App />
-      </Provider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </Provider>
   </React.StrictMode>
 );

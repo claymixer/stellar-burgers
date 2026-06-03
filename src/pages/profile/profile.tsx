@@ -1,12 +1,12 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
 import { useSelector, useDispatch } from '../../services/store';
-import { TRegisterData, updateUserApi } from '@api';
-import { TUser } from '@utils-types';
+import { fetchUpdateUser } from '../../services/userSlice';
 
 export const Profile: FC = () => {
+  /** TODO: взять переменную из стора */
+  const user = useSelector((store) => store.user.userData);
   const dispatch = useDispatch();
-  const user = useSelector((state) => state.user.user) as TUser | null;
 
   const [formValue, setFormValue] = useState({
     name: user?.name || '',
@@ -15,14 +15,11 @@ export const Profile: FC = () => {
   });
 
   useEffect(() => {
-    if (user) {
-      setFormValue((prevState) => ({
-        ...prevState,
-        name: user.name,
-        email: user.email,
-        password: ''
-      }));
-    }
+    setFormValue((prevState) => ({
+      ...prevState,
+      name: user?.name || '',
+      email: user?.email || ''
+    }));
   }, [user]);
 
   const isFormChanged =
@@ -32,23 +29,7 @@ export const Profile: FC = () => {
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-
-    const updateData: Partial<TRegisterData> = {};
-    if (formValue.name !== user?.name) updateData.name = formValue.name;
-    if (formValue.email !== user?.email) updateData.email = formValue.email;
-    if (formValue.password) updateData.password = formValue.password;
-
-    if (Object.keys(updateData).length > 0) {
-      updateUserApi(updateData)
-        .then((data) => {
-          dispatch({ type: 'user/setUser', payload: data.user });
-          setFormValue((prev) => ({ ...prev, password: '' }));
-        })
-        .catch((err) => {
-          console.error('Ошибка обновления профиля:', err);
-          alert(err);
-        });
-    }
+    dispatch(fetchUpdateUser(formValue));
   };
 
   const handleCancel = (e: SyntheticEvent) => {

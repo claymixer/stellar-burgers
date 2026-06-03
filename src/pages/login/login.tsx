@@ -1,32 +1,17 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { LoginUI } from '@ui-pages';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from '../../services/store';
-import { loginUserApi } from '@api';
-import { setCookie } from '../../utils/cookie';
+import { useDispatch, useSelector } from '../../services/store';
+import { fetchLoginUser } from '../../services/userSlice';
 
 export const Login: FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string>('');
+  const error = useSelector((store) => store.user.error);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    setError('');
-
-    loginUserApi({ email, password })
-      .then((data) => {
-        localStorage.setItem('refreshToken', data.refreshToken);
-        setCookie('accessToken', data.accessToken);
-        dispatch({ type: 'user/setUser', payload: data.user });
-        dispatch({ type: 'user/setAuthenticated', payload: true });
-        navigate('/');
-      })
-      .catch((err) => {
-        setError(err.message || 'Login error');
-      });
+    dispatch(fetchLoginUser({ email, password }));
   };
 
   return (
